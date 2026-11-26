@@ -574,3 +574,29 @@ footer strong {
     color: #fbbf24;
     font-size: 1.1rem;
 }
+/* الصق ده في آخر ملف style.css الحالي (من غير ما تمسح حاجة) */
+
+.price {
+    font-weight: 800;
+    color: var(--wa);
+    font-size: 1.1rem;
+    margin-bottom: 12px;
+}
+.price:empty { display: none; }
+
+.cart-item h4 { font-size: 0.95rem; color: var(--navy); }
+.cart-item span { font-size: 0.85rem; color: var(--muted); }
+
+.btn:focus-visible, .cat-btn:focus-visible, .nav-icon-btn:focus-visible, .fav-icon:focus-visible {
+    outline: 3px solid var(--gold-bright);
+    outline-offset: 2px;
+}
+
+@media (max-width: 600px) {
+    .header-container { padding: 12px 16px; }
+    .hero-card { padding: 30px 18px; }
+    .hero-card h2 { font-size: 1.4rem; }
+    .products-grid { grid-template-columns: 1fr; padding: 0 16px; }
+    .modal-card { max-height: 92vh; overflow-y: auto; }
+    .modal-btns { flex-direction: column; }
+}
