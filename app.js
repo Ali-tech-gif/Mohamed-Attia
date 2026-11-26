@@ -39,8 +39,9 @@ let currentCategory = "all";
 let showingFavoritesOnly = false;
 let currentProduct = null;
 
-function makeWhatsAppLink(message) {
-    return "https://whatsapp.com" + WHATSAPP_NUMBER + "&text=" + encodeURIComponent(message);
+function openWaDirect(message) {
+    const cleanUrl = "https://whatsapp.com" + WHATSAPP_NUMBER + "&text=" + encodeURIComponent(message);
+    window.top.location.href = cleanUrl;
 }
 
 function showToast(msg) {
@@ -59,9 +60,7 @@ function updateFavBadge() {
 function toggleFavorite(id, e) {
     e.stopPropagation();
     if (favorites.includes(id)) {
-        favorites = favorites.filter(function(item) {
-            return item !== id;
-        });
+        favorites = favorites.filter(function(item) { return item !== id; });
         showToast("تمت الإزالة من المفضلة");
     } else {
         favorites.push(id);
@@ -108,9 +107,7 @@ function filterCategory(cat, btn) {
     showingFavoritesOnly = false;
     document.getElementById("favFilterBtn").classList.remove("active");
     currentCategory = cat;
-    document.querySelectorAll(".cat-btn").forEach(function(b) {
-        b.classList.remove("active");
-    });
+    document.querySelectorAll(".cat-btn").forEach(function(b) { b.classList.remove("active"); });
     btn.classList.add("active");
     handleSearch();
 }
@@ -118,9 +115,7 @@ function filterCategory(cat, btn) {
 function handleSearch() {
     const q = document.getElementById("searchInput").value.toLowerCase().trim();
     const res = products.filter(function(p) {
-        if (showingFavoritesOnly && !favorites.includes(p.id)) {
-            return false;
-        }
+        if (showingFavoritesOnly && !favorites.includes(p.id)) return false;
         const matchCat = currentCategory === "all" || p.category === currentCategory;
         const matchText = p.name.toLowerCase().includes(q) || p.desc.toLowerCase().includes(q);
         return matchCat && matchText;
@@ -129,18 +124,14 @@ function handleSearch() {
 }
 
 function getFullImageUrl(imgPath) {
-    if (imgPath.startsWith("http")) {
-        return imgPath;
-    }
+    if (imgPath.startsWith("http")) return imgPath;
     const baseUrl = window.location.origin + window.location.pathname;
     const cleanBase = baseUrl.substring(0, baseUrl.lastIndexOf("/") + 1);
     return cleanBase + imgPath;
 }
 
 function refreshModalLinks() {
-    if (!currentProduct) {
-        return;
-    }
+    if (!currentProduct) return;
     const color = document.getElementById("modalColor").value;
     const size = document.getElementById("modalSize").value;
     const fullImageLink = getFullImageUrl(currentProduct.img);
@@ -148,14 +139,24 @@ function refreshModalLinks() {
     const orderMsg = "[طلب شراء]\nكود: " + currentProduct.id + "\nالمنتج: " + currentProduct.name + "\nاللون: " + color + "\nالمقاس: " + size + "\nرابط الصورة: " + fullImageLink;
     const askMsg = "[استفسار]\nكود: " + currentProduct.id + "\nالمنتج: " + currentProduct.name + "\nاللون: " + color + "\nالمقاس: " + size + "\nرابط الصورة: " + fullImageLink;
 
-    document.getElementById("modalOrderBtn").href = makeWhatsAppLink(orderMsg);
-    document.getElementById("modalAskBtn").href = makeWhatsAppLink(askMsg);
+    const orderBtn = document.getElementById("modalOrderBtn");
+    const askBtn = document.getElementById("modalAskBtn");
+
+    orderBtn.removeAttribute("target");
+    askBtn.removeAttribute("target");
+
+    orderBtn.onclick = function(e) {
+        e.preventDefault();
+        openWaDirect(orderMsg);
+    };
+    askBtn.onclick = function(e) {
+        e.preventDefault();
+        openWaDirect(askMsg);
+    };
 }
 
 function openModal(id) {
-    const p = products.find(function(item) {
-        return item.id === id;
-    });
+    const p = products.find(function(item) { return item.id === id; });
     currentProduct = p;
 
     document.getElementById("modalImg").src = p.img;
@@ -163,25 +164,15 @@ function openModal(id) {
     document.getElementById("modalTitle").innerText = p.name;
     document.getElementById("modalDesc").innerText = p.desc;
 
-    document.getElementById("modalColor").innerHTML = p.colors.map(function(c) {
-        return "<option value='" + c + "'>" + c + "</option>";
-    }).join("");
-    document.getElementById("modalSize").innerHTML = p.sizes.map(function(s) {
-        return "<option value='" + s + "'>" + s + "</option>";
-    }).join("");
+    document.getElementById("modalColor").innerHTML = p.colors.map(function(c) { return "<option value='" + c + "'>" + c + "</option>"; }).join("");
+    document.getElementById("modalSize").innerHTML = p.sizes.map(function(s) { return "<option value='" + s + "'>" + s + "</option>"; }).join("");
 
     refreshModalLinks();
 
     document.getElementById("modalCartBtn").onclick = function() {
         const color = document.getElementById("modalColor").value;
         const size = document.getElementById("modalSize").value;
-        cart.push({
-            id: p.id,
-            name: p.name,
-            color: color,
-            size: size,
-            img: p.img
-        });
+        cart.push({ id: p.id, name: p.name, color: color, size: size, img: p.img });
         updateCart();
         document.getElementById("productModal").style.display = "none";
         showToast("تمت الإضافة لقائمة طلباتي");
@@ -221,10 +212,13 @@ function updateCart() {
     const orderLink = document.getElementById("cartOrderLink");
     const askLink = document.getElementById("cartAskLink");
 
+    orderLink.removeAttribute("target");
+    askLink.removeAttribute("target");
+
     if (cart.length === 0) {
         box.innerHTML = "<p class='empty-text'>القائمة فارغة حالياً</p>";
-        orderLink.href = "#";
-        askLink.href = "#";
+        orderLink.onclick = function(e) { e.preventDefault(); showToast("القائمة فارغة!"); };
+        askLink.onclick = function(e) { e.preventDefault(); showToast("القائمة فارغة!"); };
         return;
     }
 
@@ -245,8 +239,8 @@ function updateCart() {
     });
 
     box.innerHTML = html;
-    orderLink.href = makeWhatsAppLink(orderMsg);
-    askLink.href = makeWhatsAppLink(askMsg);
+    orderLink.onclick = function(e) { e.preventDefault(); openWaDirect(orderMsg); };
+    askLink.onclick = function(e) { e.preventDefault(); openWaDirect(askMsg); };
 }
 
 updateFavBadge();
