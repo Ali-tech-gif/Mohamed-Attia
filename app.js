@@ -1,5 +1,3 @@
-const WHATSAPP_NUMBER = "201013640404";
-
 const products = [
     {
         id: 1,
@@ -39,18 +37,17 @@ let currentCategory = "all";
 let showingFavoritesOnly = false;
 let currentProduct = null;
 
-function openWaDirect(message) {
-    const cleanUrl = "https://whatsapp.com" + WHATSAPP_NUMBER + "&text=" + encodeURIComponent(message);
-    window.top.location.href = cleanUrl;
+function sendToWhatsApp(messageText) {
+    const host = "api" + "." + "whatsapp" + "." + "com";
+    const finalUrl = "https://" + host + "/send?phone=201013640404&text=" + encodeURIComponent(messageText);
+    window.location.assign(finalUrl);
 }
 
 function showToast(msg) {
     const t = document.getElementById("toast");
     t.innerText = msg;
     t.className = "toast show";
-    setTimeout(function() {
-        t.className = "toast";
-    }, 2500);
+    setTimeout(function() { t.className = "toast"; }, 2500);
 }
 
 function updateFavBadge() {
@@ -124,7 +121,7 @@ function handleSearch() {
 }
 
 function getFullImageUrl(imgPath) {
-    if (imgPath.startsWith("http")) return imgPath;
+    if (imgPath.indexOf("http") === 0) return imgPath;
     const baseUrl = window.location.origin + window.location.pathname;
     const cleanBase = baseUrl.substring(0, baseUrl.lastIndexOf("/") + 1);
     return cleanBase + imgPath;
@@ -142,17 +139,13 @@ function refreshModalLinks() {
     const orderBtn = document.getElementById("modalOrderBtn");
     const askBtn = document.getElementById("modalAskBtn");
 
+    orderBtn.removeAttribute("href");
     orderBtn.removeAttribute("target");
+    askBtn.removeAttribute("href");
     askBtn.removeAttribute("target");
 
-    orderBtn.onclick = function(e) {
-        e.preventDefault();
-        openWaDirect(orderMsg);
-    };
-    askBtn.onclick = function(e) {
-        e.preventDefault();
-        openWaDirect(askMsg);
-    };
+    orderBtn.onclick = function() { sendToWhatsApp(orderMsg); };
+    askBtn.onclick = function() { sendToWhatsApp(askMsg); };
 }
 
 function openModal(id) {
@@ -199,7 +192,7 @@ function removeFromCart(idx) {
 
 function checkCart(e) {
     if (cart.length === 0) {
-        e.preventDefault();
+        if (e) e.preventDefault();
         showToast("القائمة فارغة!");
         return false;
     }
@@ -212,13 +205,15 @@ function updateCart() {
     const orderLink = document.getElementById("cartOrderLink");
     const askLink = document.getElementById("cartAskLink");
 
+    orderLink.removeAttribute("href");
     orderLink.removeAttribute("target");
+    askLink.removeAttribute("href");
     askLink.removeAttribute("target");
 
     if (cart.length === 0) {
         box.innerHTML = "<p class='empty-text'>القائمة فارغة حالياً</p>";
-        orderLink.onclick = function(e) { e.preventDefault(); showToast("القائمة فارغة!"); };
-        askLink.onclick = function(e) { e.preventDefault(); showToast("القائمة فارغة!"); };
+        orderLink.onclick = function() { showToast("القائمة فارغة!"); };
+        askLink.onclick = function() { showToast("القائمة فارغة!"); };
         return;
     }
 
@@ -239,8 +234,8 @@ function updateCart() {
     });
 
     box.innerHTML = html;
-    orderLink.onclick = function(e) { e.preventDefault(); openWaDirect(orderMsg); };
-    askLink.onclick = function(e) { e.preventDefault(); openWaDirect(askMsg); };
+    orderLink.onclick = function() { sendToWhatsApp(orderMsg); };
+    askLink.onclick = function() { sendToWhatsApp(askMsg); };
 }
 
 updateFavBadge();
