@@ -1,13 +1,15 @@
+const WHATSAPP_NUMBER = "201013640404";
+
 const products = [
     {
         id: 1,
-        category: "tv",
-        badge: "ترابيزات شاشة",
-        name: "ترابيزة شاشة مودرن خشبي في أبيض",
-        desc: "تصميم عملي بأدراج تخزين وأرفف وسطى للرسيفر، خشب عالي الجودة.",
+        category: "chairs",
+        badge: "كراسي مكتب",
+        name: "كرسي مدير طبي هيدروليك فاخر",
+        desc: "تصميم مريح للظهر مع مساند مبطنة وقاعدة معدنية قوية وعجل مستورد.",
         img: "images/1.jpg",
-        colors: ["خشبي فاتح × أبيض", "بني × أبيض", "أبيض سادة"],
-        sizes: ["140 سم", "160 سم", "180 سم"]
+        colors: ["بني × أسود", "أسود ملكي", "جملي"],
+        sizes: ["ظهر عالي", "ظهر متوسط"]
     },
     {
         id: 2,
@@ -38,7 +40,7 @@ let showingFavoritesOnly = false;
 let currentProduct = null;
 
 function makeWhatsAppLink(message) {
-    return "https://wa.me/" + WHATSAPP_NUMBER + "?text=" + encodeURIComponent(message);
+    return "https://whatsapp.com" + WHATSAPP_NUMBER + "&text=" + encodeURIComponent(message);
 }
 
 function showToast(msg) {
@@ -57,7 +59,9 @@ function updateFavBadge() {
 function toggleFavorite(id, e) {
     e.stopPropagation();
     if (favorites.includes(id)) {
-        favorites = favorites.filter(function(item) { return item !== id; });
+        favorites = favorites.filter(function(item) {
+            return item !== id;
+        });
         showToast("تمت الإزالة من المفضلة");
     } else {
         favorites.push(id);
@@ -77,15 +81,16 @@ function filterFavorites(btn) {
 function renderProducts(list) {
     const grid = document.getElementById("productsGrid");
     if (list.length === 0) {
-        grid.innerHTML = "<p style='grid-column:1/-1; text-align:center; padding:40px; color:#6b7280;'>لا توجد منتجات مطابقة حالياً</p>";
+        grid.innerHTML = "<p style='grid-column:1/-1; text-align:center; padding:40px; color:#64748b;'>لا توجد منتجات مطابقة حالياً</p>";
         return;
     }
 
     let html = "";
     list.forEach(function(p) {
         const isFav = favorites.includes(p.id);
+        const favIcon = isFav ? "❤️" : "🤍";
         html += "<div class='card' onclick='openModal(" + p.id + ")'>";
-        html += "<button class='fav-icon' onclick='toggleFavorite(" + p.id + ", event)'>" + (isFav ? "❤️" : "🤍") + "</button>";
+        html += "<button class='fav-icon' onclick='toggleFavorite(" + p.id + ", event)'>" + favIcon + "</button>";
         html += "<div class='card-img'>";
         html += "<span class='tag'>" + p.badge + "</span>";
         html += "<img src='" + p.img + "' alt='" + p.name + "' onerror=\"this.src='https://placehold.co'\">";
@@ -103,7 +108,9 @@ function filterCategory(cat, btn) {
     showingFavoritesOnly = false;
     document.getElementById("favFilterBtn").classList.remove("active");
     currentCategory = cat;
-    document.querySelectorAll(".cat-btn").forEach(function(b) { b.classList.remove("active"); });
+    document.querySelectorAll(".cat-btn").forEach(function(b) {
+        b.classList.remove("active");
+    });
     btn.classList.add("active");
     handleSearch();
 }
@@ -111,7 +118,9 @@ function filterCategory(cat, btn) {
 function handleSearch() {
     const q = document.getElementById("searchInput").value.toLowerCase().trim();
     const res = products.filter(function(p) {
-        if (showingFavoritesOnly && !favorites.includes(p.id)) return false;
+        if (showingFavoritesOnly && !favorites.includes(p.id)) {
+            return false;
+        }
         const matchCat = currentCategory === "all" || p.category === currentCategory;
         const matchText = p.name.toLowerCase().includes(q) || p.desc.toLowerCase().includes(q);
         return matchCat && matchText;
@@ -119,11 +128,22 @@ function handleSearch() {
     renderProducts(res);
 }
 
+function getFullImageUrl(imgPath) {
+    if (imgPath.startsWith("http")) {
+        return imgPath;
+    }
+    const baseUrl = window.location.origin + window.location.pathname;
+    const cleanBase = baseUrl.substring(0, baseUrl.lastIndexOf("/") + 1);
+    return cleanBase + imgPath;
+}
+
 function refreshModalLinks() {
-    if (!currentProduct) return;
+    if (!currentProduct) {
+        return;
+    }
     const color = document.getElementById("modalColor").value;
     const size = document.getElementById("modalSize").value;
-    const fullImageLink = window.location.origin + "/" + currentProduct.img;
+    const fullImageLink = getFullImageUrl(currentProduct.img);
 
     const orderMsg = "[طلب شراء]\nكود: " + currentProduct.id + "\nالمنتج: " + currentProduct.name + "\nاللون: " + color + "\nالمقاس: " + size + "\nرابط الصورة: " + fullImageLink;
     const askMsg = "[استفسار]\nكود: " + currentProduct.id + "\nالمنتج: " + currentProduct.name + "\nاللون: " + color + "\nالمقاس: " + size + "\nرابط الصورة: " + fullImageLink;
@@ -133,7 +153,9 @@ function refreshModalLinks() {
 }
 
 function openModal(id) {
-    const p = products.find(function(item) { return item.id === id; });
+    const p = products.find(function(item) {
+        return item.id === id;
+    });
     currentProduct = p;
 
     document.getElementById("modalImg").src = p.img;
@@ -141,15 +163,25 @@ function openModal(id) {
     document.getElementById("modalTitle").innerText = p.name;
     document.getElementById("modalDesc").innerText = p.desc;
 
-    document.getElementById("modalColor").innerHTML = p.colors.map(function(c) { return "<option value='" + c + "'>" + c + "</option>"; }).join("");
-    document.getElementById("modalSize").innerHTML = p.sizes.map(function(s) { return "<option value='" + s + "'>" + s + "</option>"; }).join("");
+    document.getElementById("modalColor").innerHTML = p.colors.map(function(c) {
+        return "<option value='" + c + "'>" + c + "</option>";
+    }).join("");
+    document.getElementById("modalSize").innerHTML = p.sizes.map(function(s) {
+        return "<option value='" + s + "'>" + s + "</option>";
+    }).join("");
 
     refreshModalLinks();
 
     document.getElementById("modalCartBtn").onclick = function() {
         const color = document.getElementById("modalColor").value;
         const size = document.getElementById("modalSize").value;
-        cart.push({ id: p.id, name: p.name, color: color, size: size, img: p.img });
+        cart.push({
+            id: p.id,
+            name: p.name,
+            color: color,
+            size: size,
+            img: p.img
+        });
         updateCart();
         document.getElementById("productModal").style.display = "none";
         showToast("تمت الإضافة لقائمة طلباتي");
@@ -201,7 +233,7 @@ function updateCart() {
     let askMsg = "[استفسار قائمة]\n\n";
 
     cart.forEach(function(item, i) {
-        const fullImageLink = window.location.origin + "/" + item.img;
+        const fullImageLink = getFullImageUrl(item.img);
         html += "<div class='cart-item'>";
         html += "<div><h4>" + item.name + "</h4><span>" + item.color + " | " + item.size + "</span></div>";
         html += "<button class='remove-btn' onclick='removeFromCart(" + i + ")'>حذف</button>";
@@ -219,4 +251,3 @@ function updateCart() {
 
 updateFavBadge();
 renderProducts(products);
-
