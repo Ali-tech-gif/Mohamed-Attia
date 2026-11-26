@@ -1,4 +1,4 @@
-const WHATSAPP_NUMBER = "/201013640404";
+const WHATSAPP_NUMBER = "201013640404";
 
 const products = [
     {
@@ -27,7 +27,7 @@ const products = [
         badge: "عروض الباكدجات",
         name: "باكدج تأسيس مكتب أو عيادة متكامل",
         desc: "يشمل مكتب مدير فاخر + كرسي هيدروليك طبي + خزنة مصفحة بسعر خاص للتسليم الفوري.",
-        img: "https://placehold.com",
+        img: "https://placehold.co",
         colors: ["بني غامق × أسود", "خشبي × أسود", "رمادي مودرن"],
         sizes: ["باكدج 140 سم", "باكدج 160 سم", "باكدج 180 سم"]
     }
@@ -37,10 +37,9 @@ let cart = [];
 let favorites = JSON.parse(localStorage.getItem("attia_favs")) || [];
 let currentCategory = "all";
 let showingFavoritesOnly = false;
-let activeModalProduct = null;
 
-function buildWhatsAppUrl(text) {
-    return "https://wa.me" + encodeURIComponent(text);
+function goToWhatsApp(text) {
+    window.location.href = "https://whatsapp.com" + WHATSAPP_NUMBER + "&text=" + encodeURIComponent(text);
 }
 
 function showToast(msg) {
@@ -149,32 +148,16 @@ function removeFromCart(index) {
     updateCartUI();
 }
 
-function validateCart(event) {
-    if (cart.length === 0) {
-        event.preventDefault();
-        showToast("ضيف منتجات للقائمة الأول!");
-        return false;
-    }
-    return true;
-}
-
 function updateCartUI() {
     document.getElementById("cartCount").innerText = cart.length;
     const container = document.getElementById("cartItems");
-    const orderLink = document.getElementById("cartOrderLink");
-    const askLink = document.getElementById("cartAskLink");
 
     if (cart.length === 0) {
         container.innerHTML = "<p class='empty-msg'>القائمة فارغة حالياً.. ضيف المنتجات اللي عجبتك!</p>";
-        orderLink.href = "#";
-        askLink.href = "#";
         return;
     }
 
     let cartHtml = "";
-    let orderText = "[طلب شراء قائمة]\n\n";
-    let askText = "[استفسار قائمة]\n\n";
-
     cart.forEach(function(item, idx) {
         cartHtml += "<div class='cart-item'>";
         cartHtml += "<div class='cart-item-info'>";
@@ -183,20 +166,24 @@ function updateCartUI() {
         cartHtml += "</div>";
         cartHtml += "<button class='remove-item' onclick='removeFromCart(" + idx + ")'>حذف</button>";
         cartHtml += "</div>";
-
-        const itemLine = (idx + 1) + ". كود: " + item.id + " | " + item.name + "\n اللون: " + item.color + " | المقاس: " + item.size + "\n الصورة: " + item.img + "\n\n";
-        orderText += itemLine;
-        askText += itemLine;
     });
 
-    orderText += "محتاج أعرف خطوات الاستلام والتوصيل.";
-    askText += "ممكن أعرف الأسعار والتفاصيل؟";
-
     container.innerHTML = cartHtml;
-    orderLink.href = buildWhatsAppUrl(orderText);
-    orderLink.target = "_blank";
-    askLink.href = buildWhatsAppUrl(askText);
-    askLink.target = "_blank";
+}
+
+function sendCartToWhatsApp(type) {
+    if (cart.length === 0) {
+        return showToast("ضيف منتجات للقائمة الأول!");
+    }
+    const header = type === "order" ? "[طلب شراء قائمة]\n\n" : "[استفسار قائمة]\n\n";
+    let waText = header;
+
+    cart.forEach(function(item, i) {
+        waText += (i + 1) + ". كود: " + item.id + " | " + item.name + "\n اللون: " + item.color + " | المقاس: " + item.size + "\n الصورة: " + item.img + "\n\n";
+    });
+
+    waText += type === "order" ? "محتاج أعرف خطوات الاستلام والتوصيل." : "ممكن أعرف الأسعار والتفاصيل؟";
+    goToWhatsApp(waText);
 }
 
 function toggleCart(forceOpen) {
@@ -211,29 +198,10 @@ function toggleCart(forceOpen) {
     }
 }
 
-function updateModalLinks() {
-    if (!activeModalProduct) return;
-    const p = activeModalProduct;
-    const color = document.getElementById("modalColor").value;
-    const size = document.getElementById("modalSize").value;
-
-    const orderText = "[طلب شراء]\nكود: " + p.id + "\nالمنتج: " + p.name + "\nاللون: " + color + "\nالمقاس: " + size + "\nكود الصورة: " + p.img;
-    const askText = "[استفسار]\nكود: " + p.id + "\nالمنتج: " + p.name + "\nاللون: " + color + "\nالمقاس: " + size + "\nكود الصورة: " + p.img;
-
-    const orderBtn = document.getElementById("modalOrderBtn");
-    const askBtn = document.getElementById("modalAskBtn");
-
-    orderBtn.href = buildWhatsAppUrl(orderText);
-    orderBtn.target = "_blank";
-    askBtn.href = buildWhatsAppUrl(askText);
-    askBtn.target = "_blank";
-}
-
 function openModal(id) {
     const p = products.find(function(item) {
         return item.id === id;
     });
-    activeModalProduct = p;
 
     document.getElementById("modalImg").src = p.img;
     document.getElementById("modalBadge").innerText = p.badge;
@@ -247,7 +215,19 @@ function openModal(id) {
         return "<option value='" + s + "'>" + s + "</option>";
     }).join("");
 
-    updateModalLinks();
+    document.getElementById("modalOrderBtn").onclick = function() {
+        const color = document.getElementById("modalColor").value;
+        const size = document.getElementById("modalSize").value;
+        const text = "[طلب شراء]\nكود: " + p.id + "\nالمنتج: " + p.name + "\nاللون: " + color + "\nالمقاس: " + size + "\nكود الصورة: " + p.img;
+        goToWhatsApp(text);
+    };
+
+    document.getElementById("modalAskBtn").onclick = function() {
+        const color = document.getElementById("modalColor").value;
+        const size = document.getElementById("modalSize").value;
+        const text = "[استفسار]\nكود: " + p.id + "\nالمنتج: " + p.name + "\nاللون: " + color + "\nالمقاس: " + size + "\nكود الصورة: " + p.img;
+        goToWhatsApp(text);
+    };
 
     document.getElementById("modalCartBtn").onclick = function() {
         addToCartFromModal(p.id);
