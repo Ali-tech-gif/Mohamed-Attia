@@ -1,242 +1,255 @@
-const products = [
-    {
-        id: 1,
-        category: "chairs",
-        badge: "كراسي مكتب",
-        name: "كرسي مدير طبي هيدروليك فاخر",
-        desc: "تصميم مريح للظهر مع مساند مبطنة وقاعدة معدنية قوية وعجل مستورد.",
-        img: "images/1.jpg",
-        colors: ["بني × أسود", "أسود ملكي", "جملي"],
-        sizes: ["ظهر عالي", "ظهر متوسط"]
-    },
-    {
-        id: 2,
-        category: "shoes",
-        badge: "جزامات مودرن",
-        name: "جزامة رخامي بإطار ذهبي ومقابض دائرية",
-        desc: "تشطيب رخامي فاخر مقاوم للخدش مع إطارات ذهبية تضيف لمسة ملكية للمدخل.",
-        img: "images/2.jpg",
-        colors: ["رخامي فاتح × ذهبي", "رخامي غامق × ذهبي"],
-        sizes: ["80 سم", "100 سم"]
-    },
-    {
-        id: 3,
-        category: "bundles",
-        badge: "عروض الباكدجات",
-        name: "باكدج تأسيس مكتب أو عيادة متكامل",
-        desc: "يشمل مكتب مدير فاخر + كرسي هيدروليك طبي + خزنة مصفحة بسعر خاص للتسليم الفوري.",
-        img: "https://placehold.co",
-        colors: ["بني غامق × أسود", "خشبي × أسود", "رمادي مودرن"],
-        sizes: ["باكدج 140 سم", "باكدج 160 سم", "باكدج 180 سم"]
-    }
+/* ===== الإعدادات ===== */
+const WA_NUMBER = "201013640404";
+// بعد ما تعمل الشيت: File > Share > Publish to web > CSV، وحط اللينك هنا. سيبه فاضي لو لسه.
+const SHEET_CSV_URL = "";
+const PLACEHOLDER = "https://placehold.co/600x400?text=Mohamed+Attia";
+
+/* ===== المنتجات الاحتياطية (تظهر لو الشيت فاضي أو فشل) ===== */
+let products = [
+    { id: 1, category: "chairs", badge: "كراسي مكتب", name: "كرسي مدير طبي هيدروليك فاخر",
+      desc: "تصميم مريح للظهر مع مساند مبطنة وقاعدة معدنية قوية وعجل مستورد.",
+      img: "images/1.jpg", colors: ["بني × أسود", "أسود ملكي", "جملي"], sizes: ["ظهر عالي", "ظهر متوسط"], price: "" },
+    { id: 2, category: "shoes", badge: "جزامات مودرن", name: "جزامة رخامي بإطار ذهبي ومقابض دائرية",
+      desc: "تشطيب رخامي فاخر مقاوم للخدش مع إطارات ذهبية تضيف لمسة ملكية للمدخل.",
+      img: "images/2.jpg", colors: ["رخامي فاتح × ذهبي", "رخامي غامق × ذهبي"], sizes: ["80 سم", "100 سم"], price: "" },
+    { id: 3, category: "bundles", badge: "عروض الباكدجات", name: "باكدج تأسيس مكتب أو عيادة متكامل",
+      desc: "يشمل مكتب مدير فاخر + كرسي هيدروليك طبي + خزنة مصفحة بسعر خاص للتسليم الفوري.",
+      img: "images/3.jpg", colors: ["بني غامق × أسود", "خشبي × أسود", "رمادي مودرن"], sizes: ["باكدج 140 سم", "باكدج 160 سم", "باكدج 180 سم"], price: "" }
 ];
 
-let cart = [];
-let favorites = JSON.parse(localStorage.getItem("attia_favs")) || [];
+/* ===== أدوات مساعدة ===== */
+function load(k) { try { return JSON.parse(localStorage.getItem(k)) || []; } catch (e) { return []; } }
+function save(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+function esc(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+        return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+}
+function $(id) { return document.getElementById(id); }
+function productLink(id) { return location.origin + location.pathname + "#p" + id; }
+function waLink(text) { return "https://wa.me/" + WA_NUMBER + "?text=" + encodeURIComponent(text); }
+function setLink(a, text) { a.href = waLink(text); a.target = "_blank"; a.rel = "noopener"; }
+
+let cart = load("attia_cart");
+let favorites = load("attia_favs");
 let currentCategory = "all";
 let showingFavoritesOnly = false;
 let currentProduct = null;
-
-function sendToWhatsApp(messageText) {
-    const host = "api" + "." + "whatsapp" + "." + "com";
-    const finalUrl = "https://" + host + "/send?phone=201013640404&text=" + encodeURIComponent(messageText);
-    window.location.assign(finalUrl);
-}
+let toastTimer;
 
 function showToast(msg) {
-    const t = document.getElementById("toast");
-    t.innerText = msg;
+    const t = $("toast");
+    t.textContent = msg;
     t.className = "toast show";
-    setTimeout(function() { t.className = "toast"; }, 2500);
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { t.className = "toast"; }, 2500);
 }
 
-function updateFavBadge() {
-    document.getElementById("favCount").innerText = favorites.length;
+/* ===== قراءة الشيت (CSV) =====
+   أعمدة الشيت بالإنجليزي في الصف الأول:
+   id, name, category, badge, desc, img, colors, sizes, price, available
+   الألوان والمقاسات بينهم علامة |   مثال: بني|أسود|جملي
+   أي أعمدة تانية (زي "اسم أبويا") بيتجاهلها الموقع. */
+function parseCSV(t) {
+    const rows = []; let r = [], c = "", q = false;
+    for (let i = 0; i < t.length; i++) {
+        const ch = t[i];
+        if (q) {
+            if (ch === '"') { if (t[i + 1] === '"') { c += '"'; i++; } else q = false; }
+            else c += ch;
+        } else if (ch === '"') q = true;
+        else if (ch === ",") { r.push(c); c = ""; }
+        else if (ch === "\n") { r.push(c); rows.push(r); r = []; c = ""; }
+        else if (ch !== "\r") c += ch;
+    }
+    if (c || r.length) { r.push(c); rows.push(r); }
+    return rows;
 }
 
-function toggleFavorite(id, e) {
-    e.stopPropagation();
+function loadSheet() {
+    if (!SHEET_CSV_URL) return Promise.resolve();
+    return fetch(SHEET_CSV_URL).then(function (r) { return r.text(); }).then(function (txt) {
+        const rows = parseCSV(txt);
+        const head = rows.shift().map(function (h) { return h.trim().toLowerCase(); });
+        const list = rows.map(function (row) {
+            const o = {};
+            head.forEach(function (h, i) { o[h] = (row[i] || "").trim(); });
+            return o;
+        }).filter(function (o) {
+            return o.id && o.name && !/^(لا|no|false|0)$/i.test(o.available || "");
+        }).map(function (o) {
+            return {
+                id: Number(o.id), category: o.category || "all", badge: o.badge || "", name: o.name,
+                desc: o.desc || "", img: o.img || PLACEHOLDER, price: o.price || "",
+                colors: (o.colors || "غير محدد").split("|"), sizes: (o.sizes || "غير محدد").split("|")
+            };
+        });
+        if (list.length) products = list;
+    }).catch(function () { /* لو فشل بنكمل بالمنتجات الاحتياطية */ });
+}
+
+/* ===== المفضلة والبحث والأقسام ===== */
+function updateFavBadge() { $("favCount").textContent = favorites.length; }
+
+function toggleFavorite(id) {
     if (favorites.includes(id)) {
-        favorites = favorites.filter(function(item) { return item !== id; });
+        favorites = favorites.filter(function (x) { return x !== id; });
         showToast("تمت الإزالة من المفضلة");
     } else {
         favorites.push(id);
         showToast("تم الحفظ في المفضلة");
     }
-    localStorage.setItem("attia_favs", JSON.stringify(favorites));
+    save("attia_favs", favorites);
     updateFavBadge();
     handleSearch();
 }
 
 function filterFavorites(btn) {
     showingFavoritesOnly = !showingFavoritesOnly;
-    btn.classList.toggle("active");
+    btn.classList.toggle("active", showingFavoritesOnly);
     handleSearch();
-}
-
-function renderProducts(list) {
-    const grid = document.getElementById("productsGrid");
-    if (list.length === 0) {
-        grid.innerHTML = "<p style='grid-column:1/-1; text-align:center; padding:40px; color:#64748b;'>لا توجد منتجات مطابقة حالياً</p>";
-        return;
-    }
-
-    let html = "";
-    list.forEach(function(p) {
-        const isFav = favorites.includes(p.id);
-        const favIcon = isFav ? "❤️" : "🤍";
-        html += "<div class='card' onclick='openModal(" + p.id + ")'>";
-        html += "<button class='fav-icon' onclick='toggleFavorite(" + p.id + ", event)'>" + favIcon + "</button>";
-        html += "<div class='card-img'>";
-        html += "<span class='tag'>" + p.badge + "</span>";
-        html += "<img src='" + p.img + "' alt='" + p.name + "' onerror=\"this.src='https://placehold.co'\">";
-        html += "</div>";
-        html += "<div class='card-info'>";
-        html += "<h3>" + p.name + "</h3>";
-        html += "<p>" + p.desc + "</p>";
-        html += "<button class='btn btn-dark full-width' style='margin-top:auto;'>التفاصيل والطلب</button>";
-        html += "</div></div>";
-    });
-    grid.innerHTML = html;
 }
 
 function filterCategory(cat, btn) {
     showingFavoritesOnly = false;
-    document.getElementById("favFilterBtn").classList.remove("active");
+    $("favFilterBtn").classList.remove("active");
     currentCategory = cat;
-    document.querySelectorAll(".cat-btn").forEach(function(b) { b.classList.remove("active"); });
+    document.querySelectorAll(".cat-btn").forEach(function (b) { b.classList.remove("active"); });
     btn.classList.add("active");
     handleSearch();
 }
 
 function handleSearch() {
-    const q = document.getElementById("searchInput").value.toLowerCase().trim();
-    const res = products.filter(function(p) {
+    const q = $("searchInput").value.toLowerCase().trim();
+    renderProducts(products.filter(function (p) {
         if (showingFavoritesOnly && !favorites.includes(p.id)) return false;
-        const matchCat = currentCategory === "all" || p.category === currentCategory;
-        const matchText = p.name.toLowerCase().includes(q) || p.desc.toLowerCase().includes(q);
-        return matchCat && matchText;
-    });
-    renderProducts(res);
+        const okCat = currentCategory === "all" || p.category === currentCategory;
+        const okText = !q || (p.name + " " + p.desc + " " + p.badge).toLowerCase().includes(q);
+        return okCat && okText;
+    }));
 }
 
-function getFullImageUrl(imgPath) {
-    if (imgPath.indexOf("http") === 0) return imgPath;
-    const baseUrl = window.location.origin + window.location.pathname;
-    const cleanBase = baseUrl.substring(0, baseUrl.lastIndexOf("/") + 1);
-    return cleanBase + imgPath;
+function renderProducts(list) {
+    const grid = $("productsGrid");
+    if (!list.length) {
+        grid.innerHTML = "<p style='grid-column:1/-1;text-align:center;padding:40px;color:#64748b;'>لا توجد منتجات مطابقة حالياً</p>";
+        return;
+    }
+    grid.innerHTML = list.map(function (p) {
+        const heart = favorites.includes(p.id) ? "❤️" : "🤍";
+        return "<div class='card' data-id='" + p.id + "'>" +
+            "<button class='fav-icon' data-fav='" + p.id + "' aria-label='المفضلة'>" + heart + "</button>" +
+            "<div class='card-img'><span class='tag'>" + esc(p.badge) + "</span>" +
+            "<img loading='lazy' src='" + esc(p.img) + "' alt='" + esc(p.name) + "'></div>" +
+            "<div class='card-info'><h3>" + esc(p.name) + "</h3><p>" + esc(p.desc) + "</p>" +
+            (p.price ? "<div class='price'>" + esc(p.price) + " جنيه</div>" : "") +
+            "<button class='btn btn-dark full-width' style='margin-top:auto;'>التفاصيل والطلب</button></div></div>";
+    }).join("");
+}
+
+$("productsGrid").addEventListener("click", function (e) {
+    const fav = e.target.closest("[data-fav]");
+    if (fav) { e.stopPropagation(); toggleFavorite(Number(fav.dataset.fav)); return; }
+    const card = e.target.closest(".card");
+    if (card) openModal(Number(card.dataset.id));
+});
+
+// لو الصورة مش موجودة تظهر صورة بديلة
+document.addEventListener("error", function (e) {
+    if (e.target.tagName === "IMG" && e.target.src !== PLACEHOLDER) e.target.src = PLACEHOLDER;
+}, true);
+
+/* ===== نافذة المنتج ===== */
+function itemText(p, color, size) {
+    return "الكود: " + p.id + "\nالمنتج: " + p.name + "\nاللون: " + color + "\nالمقاس: " + size +
+        (p.price ? "\nالسعر: " + p.price + " جنيه" : "") + "\nالرابط: " + productLink(p.id);
 }
 
 function refreshModalLinks() {
     if (!currentProduct) return;
-    const color = document.getElementById("modalColor").value;
-    const size = document.getElementById("modalSize").value;
-    const fullImageLink = getFullImageUrl(currentProduct.img);
-
-    const orderMsg = "[طلب شراء]\nكود: " + currentProduct.id + "\nالمنتج: " + currentProduct.name + "\nاللون: " + color + "\nالمقاس: " + size + "\nرابط الصورة: " + fullImageLink;
-    const askMsg = "[استفسار]\nكود: " + currentProduct.id + "\nالمنتج: " + currentProduct.name + "\nاللون: " + color + "\nالمقاس: " + size + "\nرابط الصورة: " + fullImageLink;
-
-    const orderBtn = document.getElementById("modalOrderBtn");
-    const askBtn = document.getElementById("modalAskBtn");
-
-    orderBtn.removeAttribute("href");
-    orderBtn.removeAttribute("target");
-    askBtn.removeAttribute("href");
-    askBtn.removeAttribute("target");
-
-    orderBtn.onclick = function() { sendToWhatsApp(orderMsg); };
-    askBtn.onclick = function() { sendToWhatsApp(askMsg); };
+    const t = itemText(currentProduct, $("modalColor").value, $("modalSize").value);
+    setLink($("modalOrderBtn"), "[طلب شراء]\n" + t);
+    setLink($("modalAskBtn"), "[استفسار]\n" + t);
 }
 
 function openModal(id) {
-    const p = products.find(function(item) { return item.id === id; });
+    const p = products.find(function (x) { return x.id === id; });
+    if (!p) return;
     currentProduct = p;
-
-    document.getElementById("modalImg").src = p.img;
-    document.getElementById("modalBadge").innerText = p.badge;
-    document.getElementById("modalTitle").innerText = p.name;
-    document.getElementById("modalDesc").innerText = p.desc;
-
-    document.getElementById("modalColor").innerHTML = p.colors.map(function(c) { return "<option value='" + c + "'>" + c + "</option>"; }).join("");
-    document.getElementById("modalSize").innerHTML = p.sizes.map(function(s) { return "<option value='" + s + "'>" + s + "</option>"; }).join("");
-
+    $("modalImg").src = p.img;
+    $("modalImg").alt = p.name;
+    $("modalBadge").textContent = p.badge;
+    $("modalTitle").textContent = p.name;
+    $("modalDesc").textContent = p.desc;
+    $("modalPrice").textContent = p.price ? "السعر: " + p.price + " جنيه" : "";
+    $("modalColor").innerHTML = p.colors.map(function (c) { return "<option>" + esc(c) + "</option>"; }).join("");
+    $("modalSize").innerHTML = p.sizes.map(function (s) { return "<option>" + esc(s) + "</option>"; }).join("");
     refreshModalLinks();
-
-    document.getElementById("modalCartBtn").onclick = function() {
-        const color = document.getElementById("modalColor").value;
-        const size = document.getElementById("modalSize").value;
-        cart.push({ id: p.id, name: p.name, color: color, size: size, img: p.img });
+    $("modalCartBtn").onclick = function () {
+        cart.push({ id: p.id, color: $("modalColor").value, size: $("modalSize").value });
+        save("attia_cart", cart);
         updateCart();
-        document.getElementById("productModal").style.display = "none";
+        closeModal();
         showToast("تمت الإضافة لقائمة طلباتي");
     };
-
-    document.getElementById("productModal").style.display = "flex";
+    $("productModal").style.display = "flex";
+    history.replaceState(null, "", "#p" + id);
 }
 
 function closeModal(e) {
-    if (e.target.id === "productModal") {
-        document.getElementById("productModal").style.display = "none";
-    }
+    if (e && e.target && e.target.id !== "productModal") return;
+    $("productModal").style.display = "none";
+    history.replaceState(null, "", location.pathname);
 }
 
+document.addEventListener("keydown", function (e) { if (e.key === "Escape") closeModal(); });
+
+function openFromHash() {
+    const m = location.hash.match(/^#p(\d+)$/);
+    if (m) openModal(Number(m[1]));
+}
+
+/* ===== السلة ===== */
 function toggleCart() {
-    document.getElementById("cartDrawer").classList.toggle("open");
-    document.getElementById("overlay").classList.toggle("active");
+    $("cartDrawer").classList.toggle("open");
+    $("overlay").classList.toggle("active");
 }
 
-function removeFromCart(idx) {
-    cart.splice(idx, 1);
+function removeFromCart(i) {
+    cart.splice(i, 1);
+    save("attia_cart", cart);
     updateCart();
 }
 
 function checkCart(e) {
-    if (cart.length === 0) {
-        if (e) e.preventDefault();
-        showToast("القائمة فارغة!");
-        return false;
-    }
+    if (!cart.length) { e.preventDefault(); showToast("القائمة فارغة!"); return false; }
     return true;
 }
 
 function updateCart() {
-    document.getElementById("cartCount").innerText = cart.length;
-    const box = document.getElementById("cartItems");
-    const orderLink = document.getElementById("cartOrderLink");
-    const askLink = document.getElementById("cartAskLink");
-
-    orderLink.removeAttribute("href");
-    orderLink.removeAttribute("target");
-    askLink.removeAttribute("href");
-    askLink.removeAttribute("target");
-
-    if (cart.length === 0) {
+    // لو منتج اتشال من الشيت نشيله من السلة
+    cart = cart.filter(function (c) { return products.some(function (p) { return p.id === c.id; }); });
+    $("cartCount").textContent = cart.length;
+    const box = $("cartItems");
+    if (!cart.length) {
         box.innerHTML = "<p class='empty-text'>القائمة فارغة حالياً</p>";
-        orderLink.onclick = function() { showToast("القائمة فارغة!"); };
-        askLink.onclick = function() { showToast("القائمة فارغة!"); };
+        $("cartOrderLink").href = "#"; $("cartAskLink").href = "#";
         return;
     }
-
-    let html = "";
-    let orderMsg = "[طلب شراء قائمة]\n\n";
-    let askMsg = "[استفسار قائمة]\n\n";
-
-    cart.forEach(function(item, i) {
-        const fullImageLink = getFullImageUrl(item.img);
-        html += "<div class='cart-item'>";
-        html += "<div><h4>" + item.name + "</h4><span>" + item.color + " | " + item.size + "</span></div>";
-        html += "<button class='remove-btn' onclick='removeFromCart(" + i + ")'>حذف</button>";
-        html += "</div>";
-
-        const line = (i + 1) + ". كود: " + item.id + " | " + item.name + " (" + item.color + " - " + item.size + ")\n رابط الصورة: " + fullImageLink + "\n";
-        orderMsg += line;
-        askMsg += line;
-    });
-
-    box.innerHTML = html;
-    orderLink.onclick = function() { sendToWhatsApp(orderMsg); };
-    askLink.onclick = function() { sendToWhatsApp(askMsg); };
+    let msg = "";
+    box.innerHTML = cart.map(function (c, i) {
+        const p = products.find(function (x) { return x.id === c.id; });
+        msg += (i + 1) + ". " + itemText(p, c.color, c.size) + "\n\n";
+        return "<div class='cart-item'><div><h4>" + esc(p.name) + "</h4><span>" + esc(c.color) + " | " + esc(c.size) + "</span></div>" +
+            "<button class='remove-btn' onclick='removeFromCart(" + i + ")'>حذف</button></div>";
+    }).join("");
+    setLink($("cartOrderLink"), "[طلب شراء قائمة]\n\n" + msg);
+    setLink($("cartAskLink"), "[استفسار قائمة]\n\n" + msg);
 }
 
+/* ===== التشغيل ===== */
 updateFavBadge();
 renderProducts(products);
+updateCart();
+openFromHash();
+loadSheet().then(function () { handleSearch(); updateCart(); openFromHash(); });
