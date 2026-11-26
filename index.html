@@ -110,12 +110,12 @@
         <p class="empty-msg">القائمة فارغة حالياً.. ضيف المنتجات اللي عجبتك!</p>
     </div>
     <div class="cart-footer" style="display:flex; flex-direction:column; gap:8px;">
-        <a id="cartOrderLink" href="#" class="btn-order full-btn" style="text-decoration:none; text-align:center;" onclick="return validateCart(event)">
+        <button class="btn-order full-btn" onclick="sendCartToWhatsApp('order')">
             🟢 اطلب القائمة الآن (واتساب)
-        </a>
-        <a id="cartAskLink" href="#" class="btn-ask full-btn" style="text-decoration:none; text-align:center;" onclick="return validateCart(event)">
+        </button>
+        <button class="btn-ask full-btn" onclick="sendCartToWhatsApp('ask')">
             💬 استفسر عن السعر الإجمالي (واتساب)
-        </a>
+        </button>
     </div>
 </aside>
 
@@ -130,18 +130,18 @@
             
             <div class="modal-selectors">
                 <label>اختر اللون:</label>
-                <select id="modalColor" onchange="updateModalLinks()"></select>
+                <select id="modalColor"></select>
                 <label>اختر المقاس:</label>
-                <select id="modalSize" onchange="updateModalLinks()"></select>
+                <select id="modalSize"></select>
             </div>
 
             <div class="modal-actions">
-                <a id="modalOrderBtn" href="#" class="btn-order" style="text-decoration:none;">
+                <button class="btn-order" id="modalOrderBtn">
                     🟢 اطلب الآن
-                </a>
-                <a id="modalAskBtn" href="#" class="btn-ask" style="text-decoration:none;">
+                </button>
+                <button class="btn-ask" id="modalAskBtn">
                     💬 استفسر عن السعر
-                </a>
+                </button>
             </div>
             <button class="btn-cart-full" id="modalCartBtn" style="margin-top:10px;">
                 + أضف لقائمة طلباتي
@@ -160,7 +160,7 @@
     </div>
 </footer>
 
-<script src="app.js?v=3"></script>
+<script src="app.js?v=5"></script>
 </body>
 </html>
 
