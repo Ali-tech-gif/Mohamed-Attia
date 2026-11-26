@@ -1,5 +1,3 @@
-const WHATSAPP_NUMBER = "201013640404";
-
 const products = [
     {
         id: 1,
@@ -7,7 +5,7 @@ const products = [
         badge: "ترابيزات شاشة",
         name: "ترابيزة شاشة مودرن خشبي في أبيض",
         desc: "تصميم عملي بأدراج تخزين وأرفف وسطى للرسيفر، خشب عالي الجودة.",
-        img: "images/tv1.jpg",
+        img: "images/1.jpg",
         colors: ["خشبي فاتح × أبيض", "بني × أبيض", "أبيض سادة"],
         sizes: ["140 سم", "160 سم", "180 سم"]
     },
@@ -17,7 +15,7 @@ const products = [
         badge: "جزامات مودرن",
         name: "جزامة رخامي بإطار ذهبي ومقابض دائرية",
         desc: "تشطيب رخامي فاخر مقاوم للخدش مع إطارات ذهبية تضيف لمسة ملكية للمدخل.",
-        img: "images/shoe4.jpg",
+        img: "images/2.jpg",
         colors: ["رخامي فاتح × ذهبي", "رخامي غامق × ذهبي"],
         sizes: ["80 سم", "100 سم"]
     },
@@ -125,9 +123,10 @@ function refreshModalLinks() {
     if (!currentProduct) return;
     const color = document.getElementById("modalColor").value;
     const size = document.getElementById("modalSize").value;
+    const fullImageLink = window.location.origin + "/" + currentProduct.img;
 
-    const orderMsg = "[طلب شراء]\nكود: " + currentProduct.id + "\nالمنتج: " + currentProduct.name + "\nاللون: " + color + "\nالمقاس: " + size + "\nكود الصورة: " + currentProduct.img;
-    const askMsg = "[استفسار]\nكود: " + currentProduct.id + "\nالمنتج: " + currentProduct.name + "\nاللون: " + color + "\nالمقاس: " + size + "\nكود الصورة: " + currentProduct.img;
+    const orderMsg = "[طلب شراء]\nكود: " + currentProduct.id + "\nالمنتج: " + currentProduct.name + "\nاللون: " + color + "\nالمقاس: " + size + "\nرابط الصورة: " + fullImageLink;
+    const askMsg = "[استفسار]\nكود: " + currentProduct.id + "\nالمنتج: " + currentProduct.name + "\nاللون: " + color + "\nالمقاس: " + size + "\nرابط الصورة: " + fullImageLink;
 
     document.getElementById("modalOrderBtn").href = makeWhatsAppLink(orderMsg);
     document.getElementById("modalAskBtn").href = makeWhatsAppLink(askMsg);
@@ -202,12 +201,13 @@ function updateCart() {
     let askMsg = "[استفسار قائمة]\n\n";
 
     cart.forEach(function(item, i) {
+        const fullImageLink = window.location.origin + "/" + item.img;
         html += "<div class='cart-item'>";
         html += "<div><h4>" + item.name + "</h4><span>" + item.color + " | " + item.size + "</span></div>";
         html += "<button class='remove-btn' onclick='removeFromCart(" + i + ")'>حذف</button>";
         html += "</div>";
 
-        const line = (i + 1) + ". كود: " + item.id + " | " + item.name + " (" + item.color + " - " + item.size + ") - صورة: " + item.img + "\n";
+        const line = (i + 1) + ". كود: " + item.id + " | " + item.name + " (" + item.color + " - " + item.size + ")\n رابط الصورة: " + fullImageLink + "\n";
         orderMsg += line;
         askMsg += line;
     });
@@ -219,3 +219,4 @@ function updateCart() {
 
 updateFavBadge();
 renderProducts(products);
+
