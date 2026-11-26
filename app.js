@@ -38,7 +38,7 @@ let showingFavoritesOnly = false;
 let currentProduct = null;
 
 function makeWhatsAppLink(message) {
-    return "https://wa.me" + WHATSAPP_NUMBER + "?text=" + encodeURIComponent(message);
+    return "https://wa.me/" + WHATSAPP_NUMBER + "?text=" + encodeURIComponent(message);
 }
 
 function showToast(msg) {
