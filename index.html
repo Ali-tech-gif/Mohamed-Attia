@@ -3,147 +3,103 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>متجر محمد عطية | للأثاث المنزلي والمكتبي والخزن - المنصورة</title>
+    <title>معرض محمد عطية | للأثاث المنزلي والمكتبي والخزن</title>
     <meta name="description" content="معرض محمد عطية في المنصورة شارع بورسعيد - أكبر تشكيلة خزن حديد وبصمة وأثاث مكتبي ومنزلي بأفضل الأسعار وتوصيل فوري.">
-    <meta name="keywords" content="أثاث مكتبي المنصورة, خزن حديد المنصورة, خزنة بصمة, ترابيزات شاشة, جزامات مودرن, شارع بورسعيد المنصورة, معرض محمد عطية">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<div class="announcement-bar">
-    <div class="marquee">
-        <span>🔥 خصومات خاصة لتجهيز المكاتب والعيادات بالكامل</span>
-        <span>•</span>
-        <span>🚚 توصيل فوري داخل المنصورة وجميع مراكز الدقهلية</span>
-        <span>•</span>
-        <span>🛡️ ضمان حقيقي على جميع الخزن المصفحة والبصمة</span>
-        <span>•</span>
-        <span>📍 شرفونا بالمعاينة في فرعينا بشارع بورسعيد - المنصورة</span>
-    </div>
-</div>
-
 <header>
-    <div class="top-bar">
-        <div class="brand">
-            <h1>معرض محمد عطية</h1>
-            <span>المنصورة - شارع بورسعيد (الفرع الرئيسي والجانبي)</span>
+    <div class="header-container">
+        <div class="logo">
+            <h1>محمد عطية</h1>
+            <span>المنصورة - شارع بورسعيد</span>
         </div>
 
-        <div class="search-box">
-            <input type="text" id="searchInput" placeholder="ابحث عن خزنة، مكتب، كرسي، ترابيزة شاشة..." onkeyup="handleSearch()">
-            <button onclick="handleSearch()">بحث</button>
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="ابحث عن خزنة، مكتب، كرسي، ترابيزة..." onkeyup="handleSearch()">
         </div>
 
-        <div class="header-actions">
-            <button class="icon-btn" id="favFilterBtn" onclick="filterFavorites(this)" title="المفضلة">
-                ❤️ المفضلة <span class="badge-count" id="favCount">0</span>
+        <div class="header-btns">
+            <button class="nav-icon-btn" id="favFilterBtn" onclick="filterFavorites(this)">
+                ❤️ <span id="favCount">0</span>
             </button>
-            <button class="cart-trigger" onclick="toggleCart()">
-                🛒 قائمة طلباتي <span class="cart-count" id="cartCount">0</span>
+            <button class="nav-icon-btn cart-btn" onclick="toggleCart()">
+                🛒 قائمة طلباتي <span id="cartCount">0</span>
             </button>
-        </div>
-    </div>
-
-    <div class="nav-categories">
-        <div class="nav-container">
-            <button class="cat-btn active" onclick="filterCategory('all', this)">🏠 الكل</button>
-            <button class="cat-btn" onclick="filterCategory('safes', this)">🔐 خزن مصفحة وبصمة</button>
-            <button class="cat-btn" onclick="filterCategory('chairs', this)">🪑 كراسي مكتب وجيمنج</button>
-            <button class="cat-btn" onclick="filterCategory('office', this)">💼 مكاتب وأثاث مكتبي</button>
-            <button class="cat-btn" onclick="filterCategory('tv', this)">📺 ترابيزات شاشة</button>
-            <button class="cat-btn" onclick="filterCategory('shoes', this)">👟 جزامات ووحدات تخزين</button>
-            <button class="cat-btn" onclick="filterCategory('bundles', this)">🔥 عروض الباكدجات</button>
         </div>
     </div>
 </header>
 
-<section class="hero-banner">
-    <div class="banner-content">
-        <div class="banner-text">
-            <span class="promo-tag">تشكيلة 2026 الحصرية</span>
-            <h2>أكبر تشكيلة أثاث منزلي ومكتبي وخزن مصفحة في المنصورة</h2>
-            <p>اختار الموديل واللون والمقاس، واضغط "استفسر عن السعر" أو "اطلب الآن" وهنرد عليك فوراً على واتساب.</p>
-        </div>
+<section class="hero">
+    <div class="hero-box">
+        <h2>أثاث منزلي ومكتبي وخزن مصفحة بأعلى جودة</h2>
+        <p>تصفح التشكيلة الكاملة، اختر اللون والمقاس المناسبين، وتواصل معنا مباشرة عبر واتساب.</p>
     </div>
 </section>
 
-<section class="trust-badges">
-    <div class="trust-item">
-        <span class="trust-icon">🏢</span>
-        <div>
-            <h4>معاينة على الطبيعة</h4>
-            <p>فرعين بشارع بورسعيد بالمنصورة</p>
-        </div>
+<nav class="categories">
+    <div class="cat-list">
+        <button class="cat-btn active" onclick="filterCategory('all', this)">الكل</button>
+        <button class="cat-btn" onclick="filterCategory('safes', this)">خزن مصفحة وبصمة</button>
+        <button class="cat-btn" onclick="filterCategory('chairs', this)">كراسي مكتب</button>
+        <button class="cat-btn" onclick="filterCategory('office', this)">مكاتب</button>
+        <button class="cat-btn" onclick="filterCategory('tv', this)">ترابيزات شاشة</button>
+        <button class="cat-btn" onclick="filterCategory('shoes', this)">جزامات ووحدات</button>
+        <button class="cat-btn" onclick="filterCategory('bundles', this)">عروض الباكدجات</button>
     </div>
-    <div class="trust-item">
-        <span class="trust-icon">🎨</span>
-        <div>
-            <h4>جميع الألوان والمقاسات</h4>
-            <p>خامات مستوردة وتشطيب فاخر</p>
-        </div>
-    </div>
-    <div class="trust-item">
-        <span class="trust-icon">🛡️</span>
-        <div>
-            <h4>ضمان وصيانة</h4>
-            <p>دعم فني للخزن البصمة والديجيتال</p>
-        </div>
-    </div>
-    <div class="trust-item">
-        <span class="trust-icon">⚡</span>
-        <div>
-            <h4>تسليم وشحن فوري</h4>
-            <p>توصيل سريع للمنصورة والدقهلية</p>
-        </div>
-    </div>
-</section>
+</nav>
 
-<main class="container" id="productsGrid"></main>
+<main class="products-grid" id="productsGrid"></main>
 
 <div class="overlay" id="overlay" onclick="toggleCart()"></div>
 <aside class="cart-drawer" id="cartDrawer">
-    <div class="cart-header">
-        <h3>🛒 قائمة طلباتك المختارة</h3>
-        <button class="close-cart" onclick="toggleCart()">×</button>
+    <div class="drawer-header">
+        <h3>قائمة طلباتي</h3>
+        <button class="close-btn" onclick="toggleCart()">×</button>
     </div>
-    <div class="cart-items" id="cartItems">
-        <p class="empty-msg">القائمة فارغة حالياً.. ضيف المنتجات اللي عجبتك!</p>
+    <div class="drawer-body" id="cartItems">
+        <p class="empty-text">القائمة فارغة حالياً</p>
     </div>
-    <div class="cart-footer" style="display:flex; flex-direction:column; gap:8px;">
-        <button class="btn-order full-btn" onclick="sendCartToWhatsApp('order')">
+    <div class="drawer-footer">
+        <a id="cartOrderLink" href="#" class="btn btn-primary full-width" onclick="return checkCart(event)">
             🟢 اطلب القائمة الآن (واتساب)
-        </button>
-        <button class="btn-ask full-btn" onclick="sendCartToWhatsApp('ask')">
-            💬 استفسر عن السعر الإجمالي (واتساب)
-        </button>
+        </a>
+        <a id="cartAskLink" href="#" class="btn btn-outline full-width" onclick="return checkCart(event)">
+            💬 استفسر عن الأسعار (واتساب)
+        </a>
     </div>
 </aside>
 
 <div class="modal" id="productModal" onclick="closeModal(event)">
-    <div class="modal-content" onclick="event.stopPropagation()">
-        <button class="close-modal" onclick="document.getElementById('productModal').style.display='none'">×</button>
-        <img id="modalImg" src="" alt="">
-        <div class="modal-body">
-            <span class="modal-badge" id="modalBadge"></span>
-            <h3 id="modalTitle"></h3>
+    <div class="modal-card" onclick="event.stopPropagation()">
+        <button class="modal-close" onclick="document.getElementById('productModal').style.display='none'">×</button>
+        <div class="modal-img-box">
+            <img id="modalImg" src="" alt="">
+        </div>
+        <div class="modal-details">
+            <span class="tag" id="modalBadge"></span>
+            <h2 id="modalTitle"></h2>
             <p id="modalDesc"></p>
-            
-            <div class="modal-selectors">
-                <label>اختر اللون:</label>
-                <select id="modalColor"></select>
-                <label>اختر المقاس:</label>
-                <select id="modalSize"></select>
+
+            <div class="form-group">
+                <label>اللون:</label>
+                <select id="modalColor" onchange="refreshModalLinks()"></select>
+            </div>
+            <div class="form-group">
+                <label>المقاس:</label>
+                <select id="modalSize" onchange="refreshModalLinks()"></select>
             </div>
 
-            <div class="modal-actions">
-                <button class="btn-order" id="modalOrderBtn">
+            <div class="modal-btns">
+                <a id="modalOrderBtn" href="#" class="btn btn-primary">
                     🟢 اطلب الآن
-                </button>
-                <button class="btn-ask" id="modalAskBtn">
+                </a>
+                <a id="modalAskBtn" href="#" class="btn btn-outline">
                     💬 استفسر عن السعر
-                </button>
+                </a>
             </div>
-            <button class="btn-cart-full" id="modalCartBtn" style="margin-top:10px;">
+            <button class="btn btn-dark full-width" id="modalCartBtn" style="margin-top: 10px;">
                 + أضف لقائمة طلباتي
             </button>
         </div>
@@ -153,14 +109,10 @@
 <div id="toast" class="toast"></div>
 
 <footer>
-    <div class="footer-content">
-        <h3>معرض محمد عطية للأثاث المكتبي والمنزلي والخزن</h3>
-        <p>📍 العنوان: المنصورة - شارع بورسعيد (الفرع الرئيسي والفرع الجانبي)</p>
-        <p>📞 واتساب ومبيعات: 01013640404</p>
-    </div>
+    <p><strong>معرض محمد عطية</strong> — المنصورة، شارع بورسعيد (الفرع الرئيسي والجانبي)</p>
+    <p>للتواصل والواتساب: 01013640404</p>
 </footer>
 
-<script src="app.js?v=5"></script>
+<script src="app.js?v=10"></script>
 </body>
 </html>
-
