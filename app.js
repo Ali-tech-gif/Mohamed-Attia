@@ -39,7 +39,8 @@ let currentCategory = "all";
 let showingFavoritesOnly = false;
 
 function goToWhatsApp(text) {
-    window.location.href = "https://whatsapp.com" + WHATSAPP_NUMBER + "&text=" + encodeURIComponent(text);
+    const url = "https://whatsapp.com" + WHATSAPP_NUMBER + "&text=" + encodeURIComponent(text);
+    window.location.href = url;
 }
 
 function showToast(msg) {
@@ -244,4 +245,3 @@ function closeModal(e) {
 
 updateFavCount();
 renderProducts(products);
-
