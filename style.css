@@ -771,6 +771,48 @@ body {
     width: 100% !important;
   }
 }
+* ==========================================================
+   تكبير صورة المنتج في الموبايل وتصغير زرار المفضلة
+   ========================================================== */
+@media (max-width: 768px) {
+  .product-card, .card {
+    padding: 6px !important;
+    position: relative !important;
+  }
+
+  /* تكبير مساحة الصورة وتقليل الحواف البيضاء */
+  .product-card img, .card img, .product-img-wrap img {
+    height: 175px !important;
+    width: 100% !important;
+    object-fit: contain !important;
+    padding: 2px !important;
+  }
+
+  /* تصغير أيقونة المفضلة ووضعها في الزاوية العلوية بعيداً عن المنتج */
+  .fav-btn, .wishlist-btn, .btn-fav {
+    width: 28px !important;
+    height: 28px !important;
+    font-size: 13px !important;
+    top: 8px !important;
+    left: 8px !important;
+    right: auto !important;
+    padding: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: rgba(255, 255, 255, 0.9) !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12) !important;
+  }
+
+  /* تصغير شارة الكود/التمييز عشان متغطيش */
+  .badge, .product-badge {
+    font-size: 10px !important;
+    padding: 3px 7px !important;
+    top: 8px !important;
+    right: 8px !important;
+  }
+}
+
 
 
     .products-grid { grid-template-columns: 1fr; padding: 0 16px; }
